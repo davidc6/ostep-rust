@@ -68,8 +68,15 @@ is called **context switching**.
 in a **Process Control Block** (aka process descriptor) a data structure such info as 
 process id, state, registers, schedule-related information etc.
 
-- **fork()** - a system call to create new processes. It is an almost identical 
+### fork()
+
+**fork()** is a system call to create new processes. It is an almost identical 
 copy of the calling process. The child process does not call from the main however. 
 The value the child process returns to the caller of `fork()` is different (than 
 the calling process). The child process returns zero and parent receives the pid
 of the newly created child process. **fork()** is non-deterministic.
+
+### wait()
+
+**wait()** is a system call that allows the calling process to wait for the child 
+process to change state (terminate, get stopped).
