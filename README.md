@@ -8,6 +8,27 @@ processes should run.
 
 ## The Process
 
+- (POSIX.1-2024 definition of a process) An address space with one or more threads 
+executing within that address space, and requiring system resources for those threads.
+
+- In order to allocate resources to processes, the kernel needs to know its priviliges,
+scheduling priority, runtime status, status of pending timers or signals, tables 
+of open file descriptors, tables for managing signals, memory maps etc.
+
+- **/proc** is an interface to the kernel's internal data structure. By examining it 
+we can see process metadata easily.
+
+- There are other ids (apart from PID) that the kernel maintains for each process 
+(such as effective UID, real UID, parent process ID, process group ID, session ID).
+
+```bash
+# Count the number of active processes in the system
+ps -a | tail -n +2 | wc -l
+
+# Visualise process tree
+pstree
+```
+
 - **registers** - some these form part of the process's machine state. PC (program 
 counter) tells us which instruction the program will execute next. **Stack pointer** 
 and associated **frame pointer**, these are used to manage function parameters, 
@@ -46,3 +67,9 @@ is called **context switching**.
 - Process list - contains info about processes in the system. Each entry is stored 
 in a **Process Control Block** (aka process descriptor) a data structure such info as 
 process id, state, registers, schedule-related information etc.
+
+- **fork()** - a system call to create new processes. It is an almost identical 
+copy of the calling process. The child process does not call from the main however. 
+The value the child process returns to the caller of `fork()` is different (than 
+the calling process). The child process returns zero and parent receives the pid
+of the newly created child process. **fork()** is non-deterministic.
