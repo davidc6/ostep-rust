@@ -80,3 +80,29 @@ of the newly created child process. **fork()** is non-deterministic.
 
 **wait()** is a system call that allows the calling process to wait for the child 
 process to change state (terminate, get stopped).
+
+### exec()
+
+**exec()** is a system call that loads code (with static data) the executable that 
+gets passed as the first argument, overrides the current code segment (and static data) 
+with it, triggers re-initialisation of heap, stack and other parts of the memory. 
+In order words, it transforms the current program into a different program. It 
+does not create a new process. 
+
+## Summary
+
+**fork()**, **wait()** and **exec()** are essential to building a shell. A shell 
+is just a user program. There are number of different shells such as zsh, bash, tcsh. 
+The shell runs code after the call to **fork()**, but before the call to **exec()**. 
+The code can alter the environment of about the about-to-be-run program.
+
+The shell:
+
+- initially shows the prompt
+- allows the user to enter a command
+- finds the executable on the system
+- calls **fork()** to create a new child process for the command to run
+- calls a variant of **exec()** which runs the program
+- calls **wait()** to allow the command to complete
+- once done the shell returns from **wait()** and print prompt for the next command
+
