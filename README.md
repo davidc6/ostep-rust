@@ -106,3 +106,5 @@ The shell:
 - calls **wait()** to allow the command to complete
 - once done the shell returns from **wait()** and print prompt for the next command
 
+**fork()** and **exec()** is a powerful way to create and manipulate processes.
+
