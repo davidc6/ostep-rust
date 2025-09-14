@@ -1,7 +1,7 @@
 use std::process;
 use std::ptr::{null, null_mut};
 use std::ffi::{c_void, CString};
-use libc::{__errno_location, close, execl, execle, execlp, exit, fork, open, sleep, wait, write};
+use libc::{__errno_location, close, execl, execle, execlp, execv, execvp, execvpe, exit, fork, open, sleep, wait, write};
 use libc::{EXIT_FAILURE, O_CREAT, O_TRUNC, O_WRONLY, S_IRGRP, S_IROTH, S_IRUSR, S_IWUSR};
 
 /// Q: What value is the variable in the child process?
@@ -190,11 +190,103 @@ fn exercise_four_3() {
     }
 }
 
+fn exercise_four_4() {
+    unsafe {
+        let return_value = fork();
+
+        if return_value < 0 {
+            println!("Fork failed");
+            exit(EXIT_FAILURE);
+        } else if return_value == 0 {
+            // CString style
+            let ls = CString::new("ls").unwrap();
+            let ls_ptr = ls.as_ptr();
+
+            let ls_path = CString::new("/usr/bin/ls").unwrap();
+            let ls_path_ptr = ls_path.as_ptr();
+
+            let args = [ls_ptr, null()].as_ptr();
+
+            // Note: argument list has to be null terminated
+            let return_value = execv(ls_path_ptr, args);
+
+            let errno = __errno_location();
+            println!("Child process. {return_value} {}", *errno);
+        } else {
+            println!("Parent process");
+        }
+    }
+}
+
+fn exercise_four_5() {
+    unsafe {
+        let return_value = fork();
+
+        if return_value < 0 {
+            println!("Fork failed");
+            exit(EXIT_FAILURE);
+        } else if return_value == 0 {
+            // CString style
+            let ls = CString::new("ls").unwrap();
+            let ls_ptr = ls.as_ptr();
+
+            let ls_path = CString::new("/usr/bin/ls").unwrap();
+            let ls_path_ptr = ls_path.as_ptr();
+
+            let args = [ls_ptr, null()].as_ptr();
+
+            // Note: argument list has to be null terminated
+            let return_value = execvp(ls_ptr, args);
+
+            let errno = __errno_location();
+            println!("Child process. {return_value} {}", *errno);
+        } else {
+            println!("Parent process");
+        }
+    }
+}
+
+fn exercise_four_6() {
+    unsafe {
+        let return_value = fork();
+
+        if return_value < 0 {
+            println!("Fork failed");
+            exit(EXIT_FAILURE);
+        } else if return_value == 0 {
+            // CString style
+            let ls = CString::new("env").unwrap();
+            let ls_ptr = ls.as_ptr();
+
+            let ls_path = CString::new("/usr/bin/env").unwrap();
+            let ls_path_ptr = ls_path.as_ptr();
+
+            let args = [ls_ptr, null()].as_ptr();
+
+            // Note: argument list has to be null terminated
+            let env_var = CString::new("FOO=bar").unwrap();
+            let env_var_ptr = [env_var.as_ptr(), null()].as_ptr();
+
+            // Note: argument list has to be null terminated
+            let return_value = execvpe(ls_ptr, args,env_var_ptr);
+
+            let errno = __errno_location();
+            println!("Child process. {return_value} {}", *errno);
+        } else {
+            println!("Parent process");
+        }
+    }
+}
+
+
 fn main() {
     // exercise_one();
     // exercise_two();
     // exercise_three();
     // exercise_four_1();
-    exercise_four_2();
+    // exercise_four_2();
     // exercise_four_3();
+    // exercise_four_4();
+    // exercise_four_5();
+    exercise_four_6();
 }
