@@ -149,11 +149,11 @@ fn exercise_four_2() {
             let ls_cmd = CString::new("ls").unwrap();
             let ls_cmd_ptr = ls_cmd.as_ptr();
 
-            // Raw version
-            // let ls_ptr: *const i8 = "ls\0".as_ptr();
-
             // Note: argument list has to be null terminated
-            let envs = [null::<i8>(); 1];
+            let env_var = CString::new("FOO=bar").unwrap();
+            let env_var_ptr = env_var.as_ptr();
+
+            let envs = [env_var_ptr, null::<i8>()].as_ptr() as *const i8;
             let return_value = execle(ls_ptr, ls_cmd_ptr, null::<i8>(), envs);
 
             let errno = __errno_location();
@@ -195,6 +195,6 @@ fn main() {
     // exercise_two();
     // exercise_three();
     // exercise_four_1();
-    // exercise_four_2();
-    exercise_four_3();
+    exercise_four_2();
+    // exercise_four_3();
 }
