@@ -1,7 +1,7 @@
 use std::process;
 use std::ptr::{null, null_mut};
 use std::ffi::{c_void, CString};
-use libc::{__errno_location, close, execl, exit, fork, open, sleep, wait, write};
+use libc::{__errno_location, close, execl, execle, execlp, exit, fork, open, sleep, wait, write};
 use libc::{EXIT_FAILURE, O_CREAT, O_TRUNC, O_WRONLY, S_IRGRP, S_IROTH, S_IRUSR, S_IWUSR};
 
 /// Q: What value is the variable in the child process?
@@ -134,11 +134,67 @@ fn exercise_four_1() {
     }
 }
 
-fn exercise_four_2() {}
+fn exercise_four_2() {
+    unsafe {
+        let return_value = fork();
+
+        if return_value < 0 {
+            println!("Fork failed");
+            exit(EXIT_FAILURE);
+        } else if return_value == 0 {
+            // CString style
+            let ls = CString::new("/usr/bin/ls").unwrap();
+            let ls_ptr = ls.as_ptr();
+
+            let ls_cmd = CString::new("ls").unwrap();
+            let ls_cmd_ptr = ls_cmd.as_ptr();
+
+            // Raw version
+            // let ls_ptr: *const i8 = "ls\0".as_ptr();
+
+            // Note: argument list has to be null terminated
+            let envs = [null::<i8>(); 1];
+            let return_value = execle(ls_ptr, ls_cmd_ptr, null::<i8>(), envs);
+
+            let errno = __errno_location();
+            println!("Child process. {return_value} {}", *errno);
+        } else {
+            println!("Parent process");
+        }
+    }
+}
+
+fn exercise_four_3() {
+    unsafe {
+        let return_value = fork();
+
+        if return_value < 0 {
+            println!("Fork failed");
+            exit(EXIT_FAILURE);
+        } else if return_value == 0 {
+            // CString style
+            let ls = CString::new("ls").unwrap();
+            let ls_ptr = ls.as_ptr();
+
+            // Raw version
+            // let ls_ptr: *const i8 = "ls\0".as_ptr();
+
+            // Note: argument list has to be null terminated
+            let return_value = execlp(ls_ptr, ls_ptr, null::<i8>());
+
+            let errno = __errno_location();
+            println!("Child process. {return_value} {}", *errno);
+        } else {
+            println!("Parent process");
+        }
+    }
+}
 
 fn main() {
     // exercise_one();
     // exercise_two();
     // exercise_three();
-    exercise_four_1();
+    // exercise_four_1();
+    // exercise_four_2();
+    exercise_four_3();
 }
