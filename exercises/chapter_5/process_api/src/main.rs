@@ -1,5 +1,5 @@
 use std::{ffi::c_void, process, ptr::null_mut};
-use libc::{__errno_location, close, exit, fork, open, wait, write, EXIT_FAILURE, O_APPEND, O_CREAT, O_RDONLY, O_RDWR, O_TRUNC, O_WRONLY, S_IRGRP, S_IROTH, S_IRUSR, S_IRWXU, S_IWUSR};
+use libc::{__errno_location, close, exit, fork, open, sleep, wait, write, EXIT_FAILURE, O_APPEND, O_CREAT, O_RDONLY, O_RDWR, O_TRUNC, O_WRONLY, S_IRGRP, S_IROTH, S_IRUSR, S_IRWXU, S_IWUSR};
 
 /// Q: What value is the variable in the child process?
 /// A: If set in parent to 100 then child is 100 since
@@ -77,7 +77,30 @@ fn exercise_two() {
     }
 }
 
+/// Q: You should try to ensure that the child process always prints first; can you do this
+/// without calling wait() in the parent?
+/// A: Yes. We can use sleep() system call causes the calling thread to sleep until the number of 
+/// seconds specified is elapsed or a signal arrives.
+fn exercise_three() {
+    unsafe {
+        let return_value = fork();
+
+        if return_value < 0 {
+            println!("Fork failed");
+            exit(EXIT_FAILURE);
+        } else if return_value == 0 {
+            println!("Child. Hello.");
+        } else {
+            // We can make the thread sleep but this will only work if the child thread takes
+            // less time than the duration specified in this sleep function call.
+            sleep(1);
+            println!("Parent. Goodbye");
+        }
+    }
+}
+
 fn main() {
     // exercise_one();
-    exercise_two();
+    // exercise_two();
+    exercise_three();
 }
