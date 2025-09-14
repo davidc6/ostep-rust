@@ -1,5 +1,8 @@
-use std::{ffi::c_void, process, ptr::null_mut};
-use libc::{__errno_location, close, exit, fork, open, sleep, wait, write, EXIT_FAILURE, O_APPEND, O_CREAT, O_RDONLY, O_RDWR, O_TRUNC, O_WRONLY, S_IRGRP, S_IROTH, S_IRUSR, S_IRWXU, S_IWUSR};
+use std::process;
+use std::ptr::{null, null_mut};
+use std::ffi::{c_void, CString};
+use libc::{__errno_location, close, execl, exit, fork, open, sleep, wait, write};
+use libc::{EXIT_FAILURE, O_CREAT, O_TRUNC, O_WRONLY, S_IRGRP, S_IROTH, S_IRUSR, S_IWUSR};
 
 /// Q: What value is the variable in the child process?
 /// A: If set in parent to 100 then child is 100 since
@@ -99,8 +102,43 @@ fn exercise_three() {
     }
 }
 
+/// Q: Run the program "/bin/ls" using variants of exec().
+fn exercise_four_1() {
+    unsafe {
+        let return_value = fork();
+
+        if return_value < 0 {
+            println!("Fork failed");
+            exit(EXIT_FAILURE);
+        } else if return_value == 0 {
+            // CString style
+            let ls = CString::new("/usr/bin/ls").unwrap();
+            let ls_ptr = ls.as_ptr();
+
+            let ls_cmd = CString::new("ls").unwrap();
+            let ls_cmd_ptr = ls_cmd.as_ptr();
+           
+            // Raw version
+            // let ls_ptr: *const i8 = "/usr/bin/ls\0".as_ptr();
+            //
+            // let ls_cmd_ptr: *const i8 = ls_ptr.as_ptr();
+
+            // Note: argument list has to be null terminated
+            let return_value = execl(ls_ptr, ls_cmd_ptr as *const i8, null::<i8>());
+
+            let errno = __errno_location();
+            println!("Child process. {return_value} {}", *errno);
+        } else {
+            println!("Parent process");
+        }
+    }
+}
+
+fn exercise_four_2() {}
+
 fn main() {
     // exercise_one();
     // exercise_two();
-    exercise_three();
+    // exercise_three();
+    exercise_four_1();
 }
