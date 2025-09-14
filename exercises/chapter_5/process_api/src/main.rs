@@ -143,17 +143,17 @@ fn exercise_four_2() {
             exit(EXIT_FAILURE);
         } else if return_value == 0 {
             // CString style
-            let ls = CString::new("/usr/bin/ls").unwrap();
+            let ls = CString::new("/usr/bin/env").unwrap();
             let ls_ptr = ls.as_ptr();
 
-            let ls_cmd = CString::new("ls").unwrap();
+            let ls_cmd = CString::new("env").unwrap();
             let ls_cmd_ptr = ls_cmd.as_ptr();
 
             // Note: argument list has to be null terminated
             let env_var = CString::new("FOO=bar").unwrap();
             let env_var_ptr = env_var.as_ptr();
 
-            let envs = [env_var_ptr, null::<i8>()].as_ptr() as *const i8;
+            let envs = [env_var_ptr, null::<i8>()].as_ptr();
             let return_value = execle(ls_ptr, ls_cmd_ptr, null::<i8>(), envs);
 
             let errno = __errno_location();
